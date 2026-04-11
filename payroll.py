@@ -55,6 +55,8 @@ def calculate_payroll():
 # hourly rate, calculates gross pay, NIS, education tax, and net pay.
 # The payroll data is saved using save_payroll() and results
 # are displayed to the user.
+    NIS_RATE = 0.025
+    EDU_TAX_RATE = 0.0225
     if not dataforp2.employees:
         print(Fore.RED + "\t\t\t\t\t\tLoad employees first!")
         return
@@ -78,8 +80,10 @@ def calculate_payroll():
             continue
         
         gross = hours * rate
-        nis = gross * 0.025
-        edu_tax = (gross - nis) * 0.025
+
+        nis = gross * NIS_RATE
+        edu_tax = (gross - nis) * EDU_TAX_RATE
+
         net = gross - nis - edu_tax
 
         save_payroll(worker["EmployeeID"], hours, rate, gross, nis, edu_tax, net)
