@@ -12,37 +12,34 @@
 void Add_Employee(struct employee *empPtr) {
     int starter = 0;
     int check = 0;
-
-    write_header();
  
     do {
-        printf("Press 1 Add Employee or -999 to stop: ");
-        scanf("%d", &starter);
- 
-        if (starter == -999) break;
+
+        if (starter == -999) 
+            break;
+
         if (starter != 1) { 
             printf("Invalid option.\n"); 
-            continue; 
+            break; 
         }
  
         do {
             check = 0;
-            printf("Enter Employee ID (max 9 characters): ");
+            printf("Enter Employee ID (max 10 characters): ");
             scanf("%9s", empPtr->Employee_ID);
 
-            if (strlen(empPtr->Employee_ID) > 9) {
-                printf("ID too long. Max 9 characters.\n");
+            if (strlen(empPtr->Employee_ID) > 10 || strlen(empPtr->Employee_ID)< 10) {
+                printf("\nID too long or too short. must be 10 characters.\n");
                 check = 1;
             }
 
-            if (valid_id(empPtr->Employee_ID)) {
-                printf("Error: ID already exists. Try a different ID.\n");
+            if (valid_id(empPtr->Employee_ID) == 1) {
+                printf("\nError: ID already exists. Try a different ID.\n");
                 check = 1;
             }
-            break;
+            
         } while (check == 1);
 
- 
         printf("Enter Employee First name: ");
         scanf("%39s", empPtr->First_name);
  
@@ -63,7 +60,6 @@ void Add_Employee(struct employee *empPtr) {
 
         } while (Valid_status(empPtr->Status) == 0);
  
-
         do {
             printf("Enter Employee Hours Worked (0-80): ");
             scanf("%d", &empPtr->hours_worked);
@@ -74,7 +70,6 @@ void Add_Employee(struct employee *empPtr) {
 
         } while (empPtr->hours_worked < 0 || empPtr->hours_worked > 80);
  
-
         do {
             printf("Enter Employee Hourly Rate (0-160): ");
             scanf("%f", &empPtr->Hourly_rate);
@@ -100,7 +95,10 @@ void Add_Employee(struct employee *empPtr) {
             empPtr->Hourly_rate);
 
         fclose(file);
-        printf("Employee added successfully.\n");
+        printf("\n Employee added successfully.\n");
+
+        printf("\n Press 1 Add Employee or -999 to stop: ");
+        scanf("%d", &starter);
  
     } while (starter != -999);
 }
@@ -112,7 +110,8 @@ void list_emplyees(struct employee *empPtr) {
  
     FILE *file = fopen(employee_path, "r");
     if (file == NULL) { 
-        printf("Error: Employee file not found.\n"); 
+        printf("Error: Employee file not found.\n");
+        return; 
     }
  
     fseek(file, 0, SEEK_END);
@@ -120,6 +119,7 @@ void list_emplyees(struct employee *empPtr) {
     if (ftell(file) == 0) {
         printf("No employees found. File is empty.\n");
         fclose(file);
+        return;
     }
 
     rewind(file);
@@ -393,16 +393,14 @@ void Valid_role(struct employee *emp) {
     do{
         check = 0;
         printf("Enter Employee Role (MANAGER, SERVER, COOK, CASHIER, ADMIN, ENGINEER, INTERN): ");
-        scanf("%39s", emp->Role);
+        scanf("%s", emp->Role);
 
         for(int i = 0; emp->Role[i] != '\0'; i++){
-            temp[i] = toupper(emp->Role[i]);
-            temp[strcspn(temp, "\n")] = '\0';
+            temp[i] = emp->Role[i];
         }
     
         for (int i = 0; temp[i] != '\0'; i++){
             temp[i] = toupper(temp[i]);
-            temp[strcspn(temp, "\n")] = '\0';
         }
 
         if (strcmp(temp, "MANAGER")         == 0) check = 1;

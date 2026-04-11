@@ -7,6 +7,7 @@
 #include "file.h"
 #include "paths.h"
 
+
 void Main_menu() {
     struct Admin admin;
     struct employee emp;
@@ -55,9 +56,10 @@ void Main_menu() {
             default:
                 printf("Invalid choice. Please try again.\n");
         }
-    }  while (choice != 6);
+    }  while (choice != 7);
 
 }
+
 
 int Admin_page(struct Admin *adminPtr) {
     int choice;
@@ -68,85 +70,100 @@ int Admin_page(struct Admin *adminPtr) {
     scanf("%d", &choice);
  
     if (choice == 1) {
+        Admin_sign_in(adminPtr);
+    }
+    else if (choice == 2) {
+        Admin_login(adminPtr);
+    }
+    else {
+        printf("Invalid choice. Please try again.\n");
+        return 0;
+    }
+}
+
+
+int Admin_sign_in(struct Admin *adminPtr){
+    
         char line[200];
-        char storeUsername[40];
-        char storepassword[40];
-        int  attempts = 1000;
+        char collected_Username[40], collected_Password[40];
+        char storedUser[40], storedPassword[40], decodedPass[40];;
+        int  attempts = 3;
  
         while (attempts > 0) {
+
             printf("\n\n\n=====ADMIN LOGIN=====\n\n\n");
             printf("Enter Username: ");
-            scanf("%39s", storeUsername);
+            scanf("%39s", collected_Username);
             printf("Enter Password: ");
-            scanf("%39s", storepassword);
+            scanf("%39s", collected_Password);
  
-            for (int i = 0; storepassword[i]; i++)
-                storepassword[i] = toupper(storepassword[i]);
+            for (int i = 0; collected_Password[i]; i++)
+                collected_Password[i] = toupper(collected_Password[i]);
  
             FILE *file = fopen(admin_path, "r");
+
             if (file == NULL) {
                 printf("Error: Admin file not found.\n");
                 return 0;
             }
  
             while (fgets(line, sizeof(line), file) != NULL) {
-                char storedUser[40], storedPass[40];
-                sscanf(line, "%[^,],%39s", storedUser, storedPass);
+              
+                sscanf(line, "%[^,],%39s", storedUser, storedPassword);
  
-                char decodedPass[40];
-                Unmask_password(storedPass, decodedPass);
+                Unmask_password(storedPassword, decodedPass);
  
-                if (strcmp(storedUser, storeUsername) == 0 &&
-                    strcmp(decodedPass, storepassword) == 0) {
+                if (strcmp(storedUser, collected_Username) == 0 && strcmp(decodedPass, collected_Password) == 0) {
                     printf("\n\n---ACCESS GRANTED!!---\n\n");
-                    fclose(file);
                     return 1;
                 }
-            }
+            } 
             fclose(file);
  
             attempts--;
             printf("\nACCESS DENIED!!\n");
-            if (attempts > 0)
+            if (attempts > 0){
                 printf("Remaining attempts: %d\n", attempts);
-            else
+            } else {
                 printf("No attempts left!!\n\n---ACCESS BLOCKED!!!---\n\n");
-        }
-        return 1;
-    }
-    else if (choice == 2) {
-        const char Alpha[26]   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            }
+        } exit(0);
+}
+
+int Admin_login(struct Admin *adminPtr){
+    const char Alpha[26]   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const char Masking[26] = "!@#$%^&*()-+=_{}[]|:;'<>?";
         int valid = 0;
  
         while (valid != 1) {
+
             printf("\n\n\n====ADMIN SIGN UP====\n\n\n");
             printf("Create Username: ");
             scanf("%39s", adminPtr->username);
  
-            while (getchar() != '\n');
             printf("Create Password: ");
             fgets(adminPtr->password, sizeof(adminPtr->password), stdin);
-            adminPtr->password[strcspn(adminPtr->password, "\n")] = '\0';
- 
+
             if (adminPtr->password[0] == '\0') {
                 printf("Password cannot be empty. Please try again.\n");
                 continue;
             }
  
-            int password_length = (int)strlen(adminPtr->password);
+            int password_length = strlen(adminPtr->password);
+
             if (password_length < 6) {
                 printf("Password must be at least 6 characters long. Please try again.\n");
                 continue;
             }
             if (password_length > 20) {
-                printf("Password must be less than 21 characters long. Please try again.\n");
+                printf("Password must be less than 20 characters long. Please try again.\n");
                 continue;
             }
  
             for (int i = 0; adminPtr->password[i]; i++)
                 adminPtr->password[i] = toupper(adminPtr->password[i]);
- 
+
+            // Mask the password
             for (int i = 0; adminPtr->password[i] != '\0'; i++) {
                 for (int j = 0; j < 26; j++) {
                     if (adminPtr->password[i] == Alpha[j]) {
@@ -157,32 +174,30 @@ int Admin_page(struct Admin *adminPtr) {
             }
  
             FILE *file = fopen(admin_path, "a");
-            if (file == NULL)
+            if (file == NULL){
                 file = fopen(admin_path, "w");
+            }
+
             if (file != NULL) {
                 fprintf(file, "%39s,%39s\n", adminPtr->username, adminPtr->password);
                 fclose(file);
+                return 1;
             }
  
             printf("Admin account created successfully!\n");
             valid = 1;
         }
-    }
-    else {
-        printf("Invalid choice. Please try again.\n");
-        return 0;
-    }
 }
 
- 
+
 void Unmask_password(char *stored, char *out) {
     const char Alpha[26]   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const char Masking[26] = "!@#$%^&*()-+=_{}[]|:;'<>?";
     int len = (int)strlen(stored);
-    int k   = 0;
+    int k   = 0, mapped = 0;
  
     for (int i = 0; i < len; i++) {
-        int mapped = 0;
+        mapped = 0;
         for (int j = 0; j < 26; j++) {
             if (stored[i] == Masking[j]) {
                 out[k++] = Alpha[j];

@@ -7,6 +7,8 @@ struct Admin{
 };
 void Main_menu();
 int Admin_page(struct Admin *admin);
+int Admin_sign_in(struct Admin *admin);
+int Admin_login(struct Admin *admin);
 void Unmask_password(char *stored, char *out);
 
 #endif
