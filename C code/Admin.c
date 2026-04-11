@@ -1,3 +1,9 @@
+// Module: Employee Management System
+// Purpose: Handles admin authentication and employee record management
+// Description:
+// This program manages employees, including adding, listing, finding,
+// updating, deleting, and cleaning records. It also includes admin
+// authentication with login/signup and password masking system.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +14,11 @@
 #include "paths.h"
 
 void Main_menu() {
+    // Purpose: Displays and controls the main employee management menu
+// Description:
+// Requires admin login before access. After login, provides a menu
+// for employee operations such as add, list, find, update, delete,
+// and clean records.
     struct Admin admin;
     struct employee emp;
     int choice;
@@ -33,21 +44,32 @@ void Main_menu() {
         switch(choice) {
             case 1:
                 Add_Employee(&emp);
+                // Adds a new employee record
                 break;
+
             case 2:
                 list_emplyees(&emp);
+                // Displays all employees
                 break;
+
             case 3:    
                 find_employee(&emp);
-                break;      
-            case 4 :
-                Update_Record(&emp);    
+                // Searches for employee
                 break;
-            case 5:  
+
+            case 4:
+                Update_Record(&emp);
+                // Updates employee data
+                break;
+
+            case 5:
                 Delete_Record(&emp);
-                break;      
+                // Deletes employee record
+                break;
+
             case 6:
                 Clean_file(&emp);
+                // Clears employee file
                 break;
             case 7: 
                 printf("Exiting Employee Management System. Goodbye!\n");
@@ -60,6 +82,11 @@ void Main_menu() {
 }
 
 int Admin_page(struct Admin *adminPtr) {
+    // Purpose: Handles admin login and sign-up system
+// Description:
+// Allows admin to either log in or create an account.
+// Login checks stored credentials from file with masked password.
+// Signup validates password rules and stores encrypted password.
     int choice;
     printf("\n\n\n=====ADMIN PAGE=====\n\n\n");
     printf("1. Sign in Page\n");
@@ -176,6 +203,11 @@ int Admin_page(struct Admin *adminPtr) {
 
  
 void Unmask_password(char *stored, char *out) {
+// Function: Unmask_password
+// Purpose: Decodes masked password
+// Description:
+// Converts masked characters back into original letters
+// during admin login verification.
     const char Alpha[26]   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const char Masking[26] = "!@#$%^&*()-+=_{}[]|:;'<>?";
     int len = (int)strlen(stored);
