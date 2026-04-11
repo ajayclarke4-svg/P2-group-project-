@@ -7,6 +7,13 @@ import os
 import time
 
 def save_terminated_employees():
+# Purpose: Saves terminated employees to a separate CSV file
+# Description:
+# This function scans the employee list and collects all employees
+# with TERMINATED status. If any are found, it writes their details
+# to terminated_employees.csv including ID, name, role, status,
+# hourly rate, and hours worked. If no terminated employees are
+# found, a message is displayed.
     terminated = []
 
     # collect terminated employees
@@ -47,6 +54,13 @@ def save_terminated_employees():
     print(Fore.GREEN + "\t\t\t\t\t\tTerminated employees saved successfully!")
 
 def load_payroll_history():
+# Purpose: Loads payroll history from payroll.csv
+# Description:
+# This function reads payroll.csv and stores payroll records
+# in a dictionary grouped by EmployeeID. Each employee can
+# have multiple payslips. The function returns the payroll
+# history dictionary for use in reports and employee views.
+# If the file does not exist, an empty dictionary is returned.
     payroll_history = {}
     try:
         with open("payroll.csv", "r") as file:
@@ -71,6 +85,12 @@ def load_payroll_history():
     return payroll_history
 
 def payroll_summary():
+# Purpose: Displays payroll summary report
+# Description:
+# This function loads payroll history and calculates total
+# gross pay, NIS, education tax, and net pay for each employee.
+# It also calculates overall totals for all employees and
+# displays the results in a formatted summary report.
     payroll_history = load_payroll_history()
     if not payroll_history:
         print(Fore.RED + Style.BRIGHT +"\t\t\t\t\t\tNo payroll records found!\n")
@@ -113,6 +133,14 @@ def payroll_summary():
 
 
 def view_employees():
+# Purpose: Displays employee information
+# Description:
+# This function displays all employees and allows filtering
+# by status (Active, Leave, Terminated, or All). It shows
+# employee details such as ID, name, role, status, hourly rate,
+# and hours worked. It also displays the last payroll record
+# for each employee if available.
+# Terminated employees are saved using save_terminated_employees().
     if not dataforp2.employees:
         print(Fore.RED + "\t\t\t\t\t\tLoad employees first!")
         return
@@ -159,8 +187,5 @@ def view_employees():
             print(Fore.RED + "\t\t\t\t\t\tEducation Tax  : None")
             print(Fore.RED + "\t\t\t\t\t\tNet Pay        : None")
     save_terminated_employees()
-
-
-
 if __name__ == "__main__":
     view_employees()
