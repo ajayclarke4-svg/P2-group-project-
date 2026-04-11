@@ -1,11 +1,26 @@
 import dataforp2
 import csv
-from datetime import datetime
+from datetime import datetime# for real date for payroll tracker
 from colorama import Fore, Back, Style, init
 
 init(autoreset=True)
 
 def save_payroll(emp_id, hours, rate, gross, nis, tax, net):
+
+# Purpose: Saves payroll information to payroll.csv
+# Parameters:
+#   emp_id - employee ID
+#   hours - hours worked
+#   rate - hourly rate
+#   gross - gross pay
+#   nis - NIS deduction
+#   tax - education tax deduction
+#   net - net pay
+# Description:
+# This function checks if the payroll file exists. If not, it creates
+# the file and writes the header. It then appends the payroll data
+# for an employee to the file.
+
     file_exists = False
     try:
         with open("payroll.csv", "r"):
@@ -33,6 +48,13 @@ def save_payroll(emp_id, hours, rate, gross, nis, tax, net):
 
 
 def calculate_payroll():   
+# Purpose: Calculates payroll for all active employees
+# Description:
+# This function loops through the employee list and processes only
+# employees with ACTIVE status. It retrieves hours worked and
+# hourly rate, calculates gross pay, NIS, education tax, and net pay.
+# The payroll data is saved using save_payroll() and results
+# are displayed to the user.
     if not dataforp2.employees:
         print(Fore.RED + "\t\t\t\t\t\tLoad employees first!")
         return
@@ -45,7 +67,7 @@ def calculate_payroll():
 
         try:
             hours = worker["HoursWorked"]
-        except (KeyError, ValueError):
+        except (KeyError, ValueError):#saftey net against key word error and value error
             print(Fore.RED + f"\t\t\t\t\t\tInvalid hours for {worker['FullName']}. Skipping.")
             continue
 
@@ -70,6 +92,11 @@ def calculate_payroll():
         print(Fore.GREEN + f"\t\t\t\t\t\tNet Pay: ${net:.2f}\n")
 
 def top_3_highest_paid():
+# Purpose: Displays the top 3 highest paid employees
+# Description:
+# This function reads payroll.csv and stores employee payroll data.
+# It sorts the employees by net pay in descending order and
+# displays the top three employees with the highest net pay.
     payroll_list = []
 
     try:
