@@ -1,2 +1,1 @@
-employees = []
-payroll_history = []
+employees = []#universal list, used in other functions

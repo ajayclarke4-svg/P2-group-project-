@@ -1,89 +1,140 @@
-
-import csv
-import os
-from datetime import datetime
 import dataforp2
+import csv
+from datetime import datetime# for real date for payroll tracker
+from colorama import Fore, Back, Style, init
 
-PAYROLL_FILE = "payroll.csv"
-PAYROLL_FREQUENCY = "Weekly" 
+init(autoreset=True)
 
-PAYROLL_HEADERS = [
-    "Date", "EmployeeID", "FullName",
-    "HoursWorked", "HourlyRate",
-    "GrossPay", "NIS", "EduTax", "NetPay"
-]
+def save_payroll(emp_id, hours, rate, gross, nis, tax, net):
 
-def write_payroll_header():
-    """Write header row only if file doesn't exist yet."""
-    if not os.path.exists(PAYROLL_FILE):
-        with open(PAYROLL_FILE, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(PAYROLL_HEADERS)
+# Purpose: Saves payroll information to payroll.csv
+# Parameters:
+#   emp_id - employee ID
+#   hours - hours worked
+#   rate - hourly rate
+#   gross - gross pay
+#   nis - NIS deduction
+#   tax - education tax deduction
+#   net - net pay
+# Description:
+# This function checks if the payroll file exists. If not, it creates
+# the file and writes the header. It then appends the payroll data
+# for an employee to the file.
 
+    file_exists = False
+    try:
+        with open("payroll.csv", "r"):
+            file_exists = True
+    except FileNotFoundError:
+        pass
 
-def save_payroll(emp_id, fullname, hours, rate, gross, nis, edu_tax, net):
-    write_payroll_header()
-    with open(PAYROLL_FILE, "a", newline="") as file:
+    with open("payroll.csv", "a", newline="") as file:
         writer = csv.writer(file)
+
+        # Write header if file is new
+        if not file_exists:
+            writer.writerow(["date","EmployeeID","hours","rate","gross","nis","tax","net"])
+
         writer.writerow([
-            datetime.now().strftime("%Y-%m-%d"),
-            emp_id, fullname,
-            hours, rate,
-            f"{gross:.2f}", f"{nis:.2f}", f"{edu_tax:.2f}", f"{net:.2f}"
-        ])
+            datetime.now().date(),
+            emp_id,
+            hours,
+            rate,
+            gross,
+            nis,
+            tax,
+            net
+        ]) 
 
 
-def calculate_payroll():
+def calculate_payroll():   
+# Purpose: Calculates payroll for all active employees
+# Description:
+# This function loops through the employee list and processes only
+# employees with ACTIVE status. It retrieves hours worked and
+# hourly rate, calculates gross pay, NIS, education tax, and net pay.
+# The payroll data is saved using save_payroll() and results
+# are displayed to the user.
+    NIS_RATE = 0.025
+    EDU_TAX_RATE = 0.0225
     if not dataforp2.employees:
-        print("\n\t\t[!] No employees loaded. Please load employees first.\n")
+        print(Fore.RED + "\t\t\t\t\t\tLoad employees first!")
         return
 
-    print(f"\n\t\t=== {PAYROLL_FREQUENCY} Payroll Processing ===\n")
-    processed = 0
-
     for worker in dataforp2.employees:
-        status = worker.get("Status", "").strip().lower()
-        name   = worker.get("FullName", "Unknown")
-        emp_id = worker.get("EmployeeID", "?")
 
-        # Block non-active employees
-        if status == "terminated":
-            print(f"\t\t[BLOCKED] {name} is TERMINATED. Payroll skipped.")
-            continue
-        if status == "on leave":
-            print(f"\t\t[BLOCKED] {name} is ON LEAVE. Payroll skipped.")
-            continue
-        if status != "active":
-            print(f"\t\t[SKIPPED] {name} — unknown status '{status}'.")
+        # Only process ACTIVE employees
+        if worker["Status"].upper() != "ACTIVE":
             continue
 
-        # Get hours
         try:
-            hours = float(input(f"\t\tEnter hours worked for {name}: "))
-            if hours < 0:
-                print("\t\tInvalid hours. Skipping.")
-                continue
-        except ValueError:
-            print("\t\tInvalid input. Skipping.")
+            hours = worker["HoursWorked"]
+        except (KeyError, ValueError):#saftey net against key word error and value error
+            print(Fore.RED + f"\t\t\t\t\t\tInvalid hours for {worker['FullName']}. Skipping.")
             continue
 
-        rate    = float(worker.get("HourlyRate", 0))
-        gross   = hours * rate
-        nis     = gross * 0.025
-        edu_tax = (gross - nis) * 0.0225
-        net     = gross - nis - edu_tax
+        try:
+            rate = float(worker["HourlyRate"])
+        except (KeyError, ValueError):
+            print(Fore.RED + f"\t\t\t\t\t\tInvalid hourly rate for {worker['FullName']}. Skipping.")
+            continue
+        
+        gross = hours * rate
 
-        save_payroll(emp_id, name, hours, rate, gross, nis, edu_tax, net)
-        processed += 1
+        nis = gross * NIS_RATE
+        edu_tax = (gross - nis) * EDU_TAX_RATE
 
-        print(f"\n\t\t--- Payroll Result: {name} ---")
-        print(f"\t\tGross Pay     : ${gross:.2f}")
-        print(f"\t\tNIS (2.5%)    : ${nis:.2f}")
-        print(f"\t\tEdu Tax(2.25%): ${edu_tax:.2f}")
-        print(f"\t\tNet Pay       : ${net:.2f}\n")
+        net = gross - nis - edu_tax
 
-    print(f"\n\t\tPayroll complete. {processed} employee(s) processed.\n")
+        save_payroll(worker["EmployeeID"], hours, rate, gross, nis, edu_tax, net)
 
+        print(Fore.CYAN + "\n\t\t\t\t\t\t--- Payroll Result ---")
+        print(Fore.MAGENTA + f"\t\t\t\t\t\tName: {worker['FullName']}")
+        print(Fore.WHITE + f"\t\t\t\t\t\tGross Pay: ${gross:.2f}")
+        print(Fore.YELLOW + f"\t\t\t\t\t\tNIS: ${nis:.2f}")
+        print(Fore.YELLOW + f"\t\t\t\t\t\tEducation Tax: ${edu_tax:.2f}")
+        print(Fore.GREEN + f"\t\t\t\t\t\tNet Pay: ${net:.2f}\n")
+
+def top_3_highest_paid():
+# Purpose: Displays the top 3 highest paid employees
+# Description:
+# This function reads payroll.csv and stores employee payroll data.
+# It sorts the employees by net pay in descending order and
+# displays the top three employees with the highest net pay.
+    payroll_list = []
+
+    try:
+        with open("payroll.csv", "r") as file:
+            reader = csv.DictReader(file)
+
+            for row in reader:
+                try:
+                    payroll_list.append({
+                        "EmployeeID": row["EmployeeID"],
+                        "net": float(row["net"]),
+                        "date": row["date"]
+                    })
+                except ValueError:
+                    continue
+
+    except FileNotFoundError:
+        print(Fore.RED + "\t\t\t\t\t\tPayroll file not found!")
+        return
+
+    if not payroll_list:
+        print(Fore.RED + "\t\t\t\t\t\tNo payroll data available!")
+        return
+
+    # Sort by Net Pay (highest first)
+    payroll_list.sort(key=lambda x: x["net"], reverse=True)
+
+    print(Fore.CYAN + "\n\t\t\t\t\t\t=== Top 3 Highest Paid Employees ===\n")
+
+    for i, worker in enumerate(payroll_list[:3], start=1):
+        print(Fore.YELLOW + f"\t\t\t\t\t\t#{i}")
+        print(Fore.WHITE + f"\t\t\t\t\t\tEmployee ID: {worker['EmployeeID']}")
+        print(Fore.GREEN + f"\t\t\t\t\t\tNet Pay: ${worker['net']:.2f}")
+        print(Fore.MAGENTA + f"\t\t\t\t\t\tDate: {worker['date']}\n")
 
 if __name__ == '__main__':
     calculate_payroll()
