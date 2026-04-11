@@ -2,7 +2,7 @@
 #define EMPLOYEE_H
 
 struct employee{
-    char Employee_ID[10];
+    char Employee_ID[15];
     char First_name[40];
     char Last_name[40];
     char full_name[80];

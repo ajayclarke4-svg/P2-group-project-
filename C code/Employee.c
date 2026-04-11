@@ -14,7 +14,7 @@ void Add_Employee(struct employee *empPtr) {
     int check = 0;
  
     do {
-
+        starter = 1;
         if (starter == -999) 
             break;
 
@@ -26,10 +26,10 @@ void Add_Employee(struct employee *empPtr) {
         do {
             check = 0;
             printf("Enter Employee ID (max 10 characters): ");
-            scanf("%9s", empPtr->Employee_ID);
+            scanf("%15s", empPtr->Employee_ID);
 
-            if (strlen(empPtr->Employee_ID) > 10 || strlen(empPtr->Employee_ID)< 10) {
-                printf("\nID too long or too short. must be 10 characters.\n");
+            if (strlen(empPtr->Employee_ID) > 10 && strlen(empPtr->Employee_ID)< 10) {
+                printf("\n ID too long or too short. must be 10 characters.\n");
                 check = 1;
             }
 
@@ -40,7 +40,7 @@ void Add_Employee(struct employee *empPtr) {
             
         } while (check == 1);
 
-        printf("Enter Employee First name: ");
+        printf("Enter Employee name: ");
         scanf("%39s", empPtr->First_name);
  
         printf("Enter Employee Last name: ");
@@ -390,30 +390,33 @@ int Valid_status(char *Status) {
 void Valid_role(struct employee *emp) {
     char temp[40];
     int check = 0;
+
     do{
-        check = 0;
-        printf("Enter Employee Role (MANAGER, SERVER, COOK, CASHIER, ADMIN, ENGINEER, INTERN): ");
+        
+        printf("Enter Employee Role (BARISTA, SERVER, COOK, CASHIER, KITCHEN ASSISTANT, SUPERVISOR ): ");
         scanf("%s", emp->Role);
 
-        for(int i = 0; emp->Role[i] != '\0'; i++){
-            temp[i] = emp->Role[i];
-        }
-    
-        for (int i = 0; temp[i] != '\0'; i++){
-            temp[i] = toupper(temp[i]);
+        while (getchar() != '\n');  
+
+        int len = strlen(emp->Role);
+        
+        for (int i = 0; i < len; i++){
+            temp[i] = toupper(emp->Role[i]);
+            temp[len] = '\0'; 
         }
 
-        if (strcmp(temp, "MANAGER")         == 0) check = 1;
+
+        if (strcmp(temp, "BARISTA")         == 0) check = 1;
         if (strcmp(temp, "SERVER")          == 0) check = 1;
         if (strcmp(temp, "COOK")            == 0) check = 1;
         if (strcmp(temp, "CASHIER")         == 0) check = 1;
-        if (strcmp(temp, "ADMIN")           == 0) check = 1;
-        if (strcmp(temp, "ENGINEER")        == 0) check = 1;
-        if (strcmp(temp, "INTERN")          == 0) check = 1;
+        if (strcmp(temp, "KITCHEN ASSISTANT") == 0) check = 1;
+        if (strcmp(temp, "SUPERVISOR")      == 0) check = 1;
+        
 
         if (check == 0) {
             printf("Invalid Role. Please try again.\n");
-            check = 0;
+    
         } 
         else {
             strncpy(emp->Role, temp, sizeof(emp-> Role));
