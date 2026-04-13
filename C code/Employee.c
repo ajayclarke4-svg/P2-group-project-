@@ -1,3 +1,9 @@
+//Group Members: Karisa Bellanfante 2508424,
+//Lab tutor: Kenrayan Whittle
+// Login information:
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
