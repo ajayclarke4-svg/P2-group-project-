@@ -31,10 +31,10 @@ def view_payroll_report():
     net_by_employee  = {}   # EmployeeID -> {name, total_net}
 
     for r in records:
-        net     = float(r.get("NetPay",   0))
-        nis     = float(r.get("NIS",      0))
-        edu_tax = float(r.get("EduTax",   0))
-        gross   = float(r.get("GrossPay", 0))
+        net     = float(r.get("net",   0))
+        nis     = float(r.get("nis",   0))
+        edu_tax = float(r.get("tax",   0))
+        gross   = float(r.get("gross", 0))
         emp_id  = r.get("EmployeeID", "?")
         name    = r.get("FullName", "Unknown")
 

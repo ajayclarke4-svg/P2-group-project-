@@ -161,4 +161,5 @@ def menu():
             pause()
         else:#safety net for user erorrs, wtih inputs
             print(Fore.RED+"\t\t\t\t\t\tInvalid choice! Try again...\n")
-menu()
+if __name__ == '__main__':
+    menu()

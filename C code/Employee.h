@@ -2,7 +2,7 @@
 #define EMPLOYEE_H
 
 struct employee{
-    char Employee_ID[15];
+    char Employee_ID[10];
     char First_name[40];
     char Last_name[40];
     char full_name[80];
@@ -13,7 +13,7 @@ struct employee{
 };
 
 void Add_Employee(struct employee *emp);
-void list_emplyees(struct employee *emp);
+void list_employees(struct employee *emp);
 void find_employee(struct employee *emp);
 void Update_Record(struct employee *emp);
 void Delete_Record(struct employee *emp);

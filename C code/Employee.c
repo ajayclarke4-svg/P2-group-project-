@@ -4,36 +4,29 @@
 #include <ctype.h>
 #include <math.h>
 
+#include "Admin.h"
 #include "Employee.h"
 #include "file.h"
 #include "paths.h"
 
-
+// Purpose: Collect Employee information
+// Description: Collects Employee ID, Fullname, Role, Hours Worked, and Hourly rate
 void Add_Employee(struct employee *empPtr) {
-    int starter = 0;
+    int starter = 1;
     int check = 0;
  
     do {
-        starter = 1;
-        if (starter == -999) 
-            break;
-
-        if (starter != 1) { 
-            printf("Invalid option.\n"); 
-            break; 
-        }
- 
         do {
             check = 0;
-            printf("Enter Employee ID (max 10 characters): ");
-            scanf("%15s", empPtr->Employee_ID);
+            printf("Enter Employee ID (6-9 characters): ");
+            scanf("%9s", empPtr->Employee_ID);
 
-            if (strlen(empPtr->Employee_ID) > 10 && strlen(empPtr->Employee_ID)< 10) {
-                printf("\n ID too long or too short. must be 10 characters.\n");
+            if (strlen(empPtr->Employee_ID) < 6 || strlen(empPtr->Employee_ID) > 9) {
+                printf("\nID too long or too short. Must be between 6-9 characters.\n");
                 check = 1;
             }
 
-            if (valid_id(empPtr->Employee_ID) == 1) {
+            if (check == 0 && valid_id(empPtr->Employee_ID) == 1) {
                 printf("\nError: ID already exists. Try a different ID.\n");
                 check = 1;
             }
@@ -45,7 +38,7 @@ void Add_Employee(struct employee *empPtr) {
  
         printf("Enter Employee Last name: ");
         scanf("%39s", empPtr->Last_name);
-    
+        
         snprintf(empPtr->full_name, sizeof(empPtr->full_name), "%s %s", empPtr->First_name, empPtr->Last_name);
 
         Valid_role(empPtr);
@@ -80,11 +73,11 @@ void Add_Employee(struct employee *empPtr) {
 
         } while (empPtr->Hourly_rate < 0 || empPtr->Hourly_rate > 160);
  
-
         FILE *file = fopen(employee_path, "a");
         if (file == NULL) {
-                printf("File Failed to open\n"); 
-            }
+            printf("File Failed to open.\n");
+            return;
+        }
  
         fprintf(file, "%s,%s,%s,%s,%d,%.2f\n",
             empPtr->Employee_ID,
@@ -95,35 +88,29 @@ void Add_Employee(struct employee *empPtr) {
             empPtr->Hourly_rate);
 
         fclose(file);
-        printf("\n Employee added successfully.\n");
+        printf("\nEmployee added successfully.\n");
 
-        printf("\n Press 1 Add Employee or -999 to stop: ");
+        printf("\nPress 1 to Add Employee or -999 to stop: ");
         scanf("%d", &starter);
  
     } while (starter != -999);
 }
 
 
-void list_emplyees(struct employee *empPtr) {
+void list_employees(struct employee *empPtr) {
     char line[200];
-    char Full_name[80];
+    char header[200];
+    int count = 0;
  
     FILE *file = fopen(employee_path, "r");
     if (file == NULL) { 
         printf("Error: Employee file not found.\n");
         return; 
     }
- 
-    fseek(file, 0, SEEK_END);
 
-    if (ftell(file) == 0) {
-        printf("No employees found. File is empty.\n");
-        fclose(file);
-        return;
-    }
+    // Read and discard the header row
+    fgets(header, sizeof(header), file);
 
-    rewind(file);
- 
     printf("\n%-10s %-20s %-20s %-15s %-15s %-15s\n",
         "ID", "Full Name", "Role", "Status", "Hours Worked", "Hourly Rate");
     printf("---------------------------------------------------------------------------------------------------------\n");
@@ -137,7 +124,6 @@ void list_emplyees(struct employee *empPtr) {
             &empPtr->hours_worked, 
             &empPtr->Hourly_rate);
 
- 
         printf("%-10s %-20s %-20s %-15s %-15d %-15.2f\n",
             empPtr->Employee_ID, 
             empPtr->full_name, 
@@ -145,22 +131,33 @@ void list_emplyees(struct employee *empPtr) {
             empPtr->Status, 
             empPtr->hours_worked, 
             empPtr->Hourly_rate);
+        count++;
     }
+
     printf("---------------------------------------------------------------------------------------------------------\n");
+
+    if (count == 0) {
+        printf("No employee records found.\n");
+    }
+
     fclose(file);
 }
 
 void find_employee(struct employee *empPtr) {
-    char line[200], ID_search[10], ID_in_system[10], Full_name[80];
+    char line[200], ID_search[10], ID_in_system[10];
     int  found = 0;
- 
+    char header[200];
+
     printf("Enter the ID number of the person you wish to find: ");
     scanf("%9s", ID_search);
  
     FILE *file = fopen(employee_path, "r");
     if (file == NULL) { 
         printf("Error: Employee file not found.\n");
+        return;
     }
+
+    fgets(header, sizeof(header), file);
  
     while (fgets(line, sizeof(line), file) != NULL) {
         
@@ -190,7 +187,7 @@ void find_employee(struct employee *empPtr) {
         }
     }
     if (!found) 
-    printf("Employee with ID '%s' not found.\n", ID_search);
+        printf("Employee with ID '%s' not found.\n", ID_search);
 
     fclose(file);
 }
@@ -198,12 +195,15 @@ void find_employee(struct employee *empPtr) {
 void Update_Record(struct employee *empPtr) {
     char line[200], ID_search[10];
     int  found = 0, choice;
- 
+    char header[200];
+
     printf("Enter the ID number of the record you wish to update: ");
     scanf("%9s", ID_search);
  
     FILE *file = fopen(employee_path, "r");
     if (file == NULL) { printf("Error: Employee file not found.\n"); return; }
+
+    fgets(header, sizeof(header), file);
  
     FILE *temp = fopen(temp_path, "w");
     if (temp == NULL) {
@@ -211,6 +211,8 @@ void Update_Record(struct employee *empPtr) {
         fclose(file);
         return;
     }
+
+    fprintf(temp, "%s", header);
  
     while (fgets(line, sizeof(line), file) != NULL) {
         sscanf(line, "%[^,],%[^,],%[^,],%[^,],%d,%f",
@@ -230,6 +232,9 @@ void Update_Record(struct employee *empPtr) {
                 empPtr->Status,
                 empPtr->hours_worked, 
                 empPtr->Hourly_rate);
+
+          
+            sscanf(empPtr->full_name, "%39s %39[^\n]", empPtr->First_name, empPtr->Last_name);
  
             do {
                 printf("What would you like to update?\n");
@@ -241,10 +246,14 @@ void Update_Record(struct employee *empPtr) {
                     case 1:
                         printf("Enter new First Name: ");
                         scanf("%39s", empPtr->First_name);
+                        
+                        snprintf(empPtr->full_name, sizeof(empPtr->full_name), "%s %s", empPtr->First_name, empPtr->Last_name);
                         break;
                     case 2:
                         printf("Enter new Last Name: ");
                         scanf("%39s", empPtr->Last_name);
+                        
+                        snprintf(empPtr->full_name, sizeof(empPtr->full_name), "%s %s", empPtr->First_name, empPtr->Last_name);
                         break;
                     case 3:
                         Valid_role(empPtr);
@@ -307,7 +316,8 @@ void Update_Record(struct employee *empPtr) {
 void Delete_Record(struct employee *empPtr) {
     char line[200], ID_search[10];
     int  found = 0;
- 
+    char header[200];
+    
     printf("Enter the ID number of the record you wish to delete: ");
     scanf("%9s", ID_search);
  
@@ -320,6 +330,10 @@ void Delete_Record(struct employee *empPtr) {
         fclose(file);
         return;
     }
+
+    fgets(header, sizeof(header), file);
+
+    fprintf(temp, "%s", header);
  
     while (fgets(line, sizeof(line), file) != NULL) {
         sscanf(line, "%[^,],%[^,],%[^,],%[^,],%d,%f",
@@ -359,9 +373,12 @@ void Delete_Record(struct employee *empPtr) {
 int valid_id(char *idPtr) {
     char existingID[10];
     char line[200];
+    char header[200];
  
     FILE *file = fopen(employee_path, "r");
     if (file == NULL) return 0;
+
+    fgets(header, sizeof(header), file);
  
     while (fgets(line, sizeof(line), file) != NULL) {
         sscanf(line, "%9[^,]", existingID);
@@ -390,48 +407,41 @@ int Valid_status(char *Status) {
 void Valid_role(struct employee *emp) {
     char temp[40];
     int check = 0;
+    int c;
+   
+    while ((c = getchar()) != '\n' && c != EOF);
 
-    do{
-        
-        printf("Enter Employee Role (BARISTA, SERVER, COOK, CASHIER, KITCHEN ASSISTANT, SUPERVISOR ): ");
-        scanf("%s", emp->Role);
-
-        while (getchar() != '\n');  
+    do {
+        printf("Enter Employee Role (BARISTA, SERVER, COOK, CASHIER, KITCHEN ASSISTANT, SUPERVISOR): ");
+        fgets(emp->Role, sizeof(emp->Role), stdin);
+        emp->Role[strcspn(emp->Role, "\n")] = '\0';
 
         int len = strlen(emp->Role);
         
         for (int i = 0; i < len; i++){
             temp[i] = toupper(emp->Role[i]);
-            temp[len] = '\0'; 
         }
+        temp[len] = '\0';
 
-
-        if (strcmp(temp, "BARISTA")         == 0) check = 1;
-        if (strcmp(temp, "SERVER")          == 0) check = 1;
-        if (strcmp(temp, "COOK")            == 0) check = 1;
-        if (strcmp(temp, "CASHIER")         == 0) check = 1;
+        if (strcmp(temp, "BARISTA")           == 0) check = 1;
+        if (strcmp(temp, "SERVER")            == 0) check = 1;
+        if (strcmp(temp, "COOK")              == 0) check = 1;
+        if (strcmp(temp, "CASHIER")           == 0) check = 1;
         if (strcmp(temp, "KITCHEN ASSISTANT") == 0) check = 1;
-        if (strcmp(temp, "SUPERVISOR")      == 0) check = 1;
-        
+        if (strcmp(temp, "SUPERVISOR")        == 0) check = 1;
 
         if (check == 0) {
             printf("Invalid Role. Please try again.\n");
-    
-        } 
-        else {
-            strncpy(emp->Role, temp, sizeof(emp-> Role));
-            check =  1;
+        } else {
+            strncpy(emp->Role, temp, sizeof(emp->Role));
         }
         
     } while (check == 0);
-
 }
 
 void write_header() {
     FILE *file = fopen(employee_path, "r");
-    if (file != NULL) { fclose(file); 
-    return;
-    } 
+    if (file != NULL) { fclose(file); return; }
 
     file = fopen(employee_path, "w");
     if (file) {

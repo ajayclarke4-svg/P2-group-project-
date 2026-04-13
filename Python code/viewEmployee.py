@@ -64,7 +64,7 @@ def load_payroll_history():
     payroll_history = {}
     try:
         with open("payroll.csv", "r") as file:
-            reader = csv.DictReader(file, fieldnames=["date", "EmployeeID", "hours", "rate", "gross", "nis", "tax", "net"])
+            reader = csv.DictReader(file)
             for row in reader:
                 # CSV format: Date, EmployeeID, Hours, Rate, Gross, NIS, Tax, Net
                 emp_id = row["EmployeeID"]
