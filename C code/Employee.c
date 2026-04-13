@@ -1,6 +1,9 @@
 //Group Members: Karisa Bellanfante 2508424, Mario Creary 2504252, Ajay Clarke 2504343
 //Lab tutor: Kenrayan Whittle
 // Login information:
+//Username: Test 
+//Password: test account
+//sign up: password is 1234567890
 
 
 
