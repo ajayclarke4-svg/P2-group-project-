@@ -1,4 +1,4 @@
-//Group Members: Karisa Bellanfante 2508424,
+//Group Members: Karisa Bellanfante 2508424, Mario Creary 2504252, Ajay Clarke 2504343
 //Lab tutor: Kenrayan Whittle
 // Login information:
 
