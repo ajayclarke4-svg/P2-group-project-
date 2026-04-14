@@ -88,7 +88,7 @@ def calculate_payroll():
 
         save_payroll(worker["EmployeeID"], hours, rate, gross, nis, edu_tax, net)
 
-        print(Fore.CYAN + "\n\t\t\t\t\t\t--- Weekly Payroll Result ---")
+        print(Fore.CYAN + "\n\t\t\t\t\t\t--- Weekly Payroll Result (Paid Weekly)---")
         print(Fore.MAGENTA + f"\t\t\t\t\t\tName: {worker['FullName']}")
         print(Fore.WHITE + f"\t\t\t\t\t\tGross Pay: ${gross:.2f}")
         print(Fore.YELLOW + f"\t\t\t\t\t\tNIS: ${nis:.2f}")
