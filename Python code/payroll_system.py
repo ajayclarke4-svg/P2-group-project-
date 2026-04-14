@@ -1,6 +1,7 @@
 import load_employees
 import viewEmployee
 import payroll
+import report
 import time
 import os
 import sys
