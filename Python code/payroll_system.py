@@ -1,7 +1,7 @@
 import load_employees
 import viewEmployee
 import payroll
-import report
+import payroll_report
 import time
 import os
 import sys
@@ -132,6 +132,7 @@ def menu():
         print(Fore.WHITE + "\t\t\t\t\t\t= 3. Calculate Payroll                 =")
         print(Fore.WHITE + "\t\t\t\t\t\t= 4. View Payroll Summary Report       =")
         print(Fore.WHITE + "\t\t\t\t\t\t= 5. View Top 3 Earners                =")
+        print(Fore.WHITE + "\t\t\t\t\t\t= 6. Load Final Payroll Report         =")
         print(Fore.WHITE + "\t\t\t\t\t\t= q. Exit                              =")
         print(Fore.CYAN + Style.BRIGHT +"\t\t\t\t\t\t========================================")
     
@@ -159,6 +160,10 @@ def menu():
         elif choice == "5":
             print(Fore.GREEN +"\t\t\t\t\t\tView Top 3 Earners selected\n")
             payroll.top_3_highest_paid()
+            pause()
+        elif choice == "6":
+            print(Fore.GREEN +"\t\t\t\t\t\tLoad Final Payroll Report selected\n")
+            payroll_report.generate_payroll_report()
             pause()
         else:#safety net for user erorrs, wtih inputs
             print(Fore.RED+"\t\t\t\t\t\tInvalid choice! Try again...\n")
